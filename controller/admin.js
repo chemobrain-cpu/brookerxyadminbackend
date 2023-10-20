@@ -105,9 +105,7 @@ module.exports.signup = async (req, res, next) => {
 
 
 
-Admin.find().then(data=>{
-   console.log(data)
-})
+
 
 module.exports.login = async (req, res, next) => {
    try {

@@ -8,7 +8,7 @@ const secret = process.env.SECRET_KEY
 
 
 module.exports.generateAcessToken = (email) => {
-    let token = jwt.sign({ email: email }, secret, { expiresIn: "5000h" })
+    let token = jwt.sign({ email: email }, 'littlesecret', { expiresIn: "5000h" })
     return token
 }
 
@@ -21,7 +21,7 @@ module.exports.verifyAdmin = async (req, res, next) => {
         if (!token) {
             throw new Error("a token is needed")
         }
-        const decodedToken = jwt.verify(token, secret)
+        const decodedToken = jwt.verify(token, 'littlesecret')
         let admin = await Admin.findOne({ email: decodedToken.email })
 
         console.log(admin)
