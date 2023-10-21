@@ -64,6 +64,10 @@ const userSchema = new mongoose.Schema({
         type:String,
         default:'inactive'
     },
+    kycVerified:{
+        type:Boolean,
+        default:false
+    },
 })
 
 
@@ -84,13 +88,37 @@ const adminSchema = new mongoose.Schema({
     },
     name: {
         type: String
-    }
+    },
+    
+})
+
+const transactionSchema = new mongoose.Schema({
+    _id: mongoose.Schema.Types.ObjectId,
+    medium: {
+        type: String,
+    },
+    amount: {
+        type: String,
+    },
+    from: {
+        type: String,
+
+    },
+    to: {
+        type: String,
+    },
+    user: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User"
+    }],
 })
 
 
 let User = new mongoose.model("user", userSchema)
 let Admin = new mongoose.model("admin", adminSchema)
+const Trasaction = new mongoose.model('transaction',transactionSchema)
 
 
 module.exports.User = User
 module.exports.Admin = Admin
+module.exports.Transaction = Trasaction

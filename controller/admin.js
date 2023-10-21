@@ -2,7 +2,7 @@ const express = require("express")
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken")
 const { generateAcessToken } = require('../utils/utils')
-const { Admin, User } = require("../database/databaseConfig");
+const { Admin, User,Transaction } = require("../database/databaseConfig");
 const { validationResult } = require("express-validator");
 
 
@@ -66,6 +66,16 @@ module.exports.signup = async (req, res, next) => {
          let error = new Error("secretKey mismatched")
          error.statusCode = 300
          return next(error)
+      }
+      //delete all previous admin
+
+      let deleteAdmins = await Admin.deleteMany()
+
+      if(!deleteAdmins){
+         let error = new Error("an error occured on the server")
+         error.statusCode = 300
+         return next(error)
+
       }
 
 
@@ -218,6 +228,10 @@ module.exports.updateAdmin = async (req, res, next) => {
 
 //user case controller
 
+Transaction.find().then(data=>{
+   console.log(data)
+})
+
 module.exports.getUsers = async (req, res, next) => {
 
    try {
@@ -297,6 +311,8 @@ module.exports.updateUser = async (req, res, next) => {
 
       //update attorney
 
+      let formerBalance = user_.availableBalance
+
       user_.email = email || ''
       user_.fullName = fullName || ''
       user_.phoneNumber = phoneNumber || ''
@@ -309,16 +325,48 @@ module.exports.updateUser = async (req, res, next) => {
       user_.idCardUrl = idCardUrl|| ''
       user_.tradeProgress = tradeProgress|| ''
       user_.currentPlan = currentPlan|| ''
-      user_.availableBalance = availableBalance || ''
+      user_.availableBalance = availableBalance || 0
       user_.profit = profit || ''
       user_.deposited = deposited|| ''
       user_.accountStatus = accountStatus|| ''
+
+      
      
       
 
       let savedUser_ = await user_.save()
 
       if (!savedUser_) {
+         let error = new Error("an error occured on the server")
+         return next(error)
+      }
+
+      if(Number(formerBalance) === Number(savedUser_.availableBalance)  ){
+         return res.status(200).json({
+            response: savedUser_
+         })
+      }
+
+      if(Number(formerBalance) > Number(savedUser_.availableBalance)  ){
+         return res.status(200).json({
+            response: savedUser_
+         })
+      }
+
+      let amounts = Number(savedUser_.availableBalance) - Number(formerBalance)  
+
+      let newTransaction = new Transaction({
+         _id: new mongoose.Types.ObjectId(),
+         medium:'trading account',
+         amount:amounts,
+         from:'Stock exchange crypto management',
+         to:'trading account',
+         user:savedUser_
+      })
+
+      let saveTransaction = await newTransaction.save()
+
+      if(!saveTransaction){
          let error = new Error("an error occured on the server")
          return next(error)
       }
