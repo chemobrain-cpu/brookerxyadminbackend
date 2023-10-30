@@ -114,13 +114,6 @@ module.exports.signup = async (req, res, next) => {
 }
 
 
-User.find().then(data => {
-   console.log(data)
-})
-Admin.find().then(data => {
-   console.log(data)
-})
-
 
 
 module.exports.login = async (req, res, next) => {
@@ -394,8 +387,6 @@ module.exports.deleteUser = async (req, res, next) => {
 
 
 
-
-
 //Deposit case controller
 
 module.exports.getDeposits = async (req, res, next) => {
@@ -534,7 +525,6 @@ module.exports.deleteDeposit = async (req, res, next) => {
 
 
 //Withdraw case controller
-
 
 module.exports.getWithdraws = async (req, res, next) => {
    try {

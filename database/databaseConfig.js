@@ -152,7 +152,7 @@ const TradeSchema = new mongoose.Schema({
         type: mongoose.Types.ObjectId,
         ref: "User"
     },
-})dirdir
+})
 
 const withdrawSchema = new mongoose.Schema({
     _id: mongoose.Types.ObjectId,
