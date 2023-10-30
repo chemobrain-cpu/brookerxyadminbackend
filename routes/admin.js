@@ -22,6 +22,22 @@ let updateUser = require("../controller/admin").updateUser
 let deleteUser = require("../controller/admin").deleteUser
 
 
+
+
+let getDeposits = require("../controller/admin").getDeposits
+let getDeposit = require("../controller/admin").getDeposit
+let updateDeposit = require("../controller/admin").updateDeposit
+let deleteDeposit = require("../controller/admin").deleteDeposit
+
+
+
+
+let getWithdraws = require("../controller/admin").getWithdraws
+let getWithdraw = require("../controller/admin").getWithdraw
+let updateWithdraw = require("../controller/admin").updateWithdraw
+let deleteWithdraw = require("../controller/admin").deleteWithdraw
+
+
 //auth routes
 
 router.post('/adminlogin',login)
@@ -40,6 +56,20 @@ router.get('/users/:id',verifyAdmin,getUser)
 router.patch('/users/:id',verifyAdmin,updateUser)
 router.delete('/users/:id',verifyAdmin,deleteUser)
 
+
+//Deposit Routes
+router.get('/deposits',verifyAdmin,getDeposits)
+router.get('/deposits/:id',verifyAdmin,getDeposit)
+router.patch('/deposits/:id',verifyAdmin,updateDeposit)
+router.delete('/deposits/:id',verifyAdmin,deleteDeposit)
+
+
+
+//Withdraw Routes
+router.get('/withdraws',verifyAdmin,getWithdraws)
+router.get('/withdraws/:id',verifyAdmin,getWithdraw)
+router.patch('/withdraws/:id',verifyAdmin,updateWithdraw)
+router.delete('/withdraws/:id',verifyAdmin,deleteWithdraw)
 
 
 exports.router = router
