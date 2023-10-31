@@ -65,6 +65,10 @@ const userSchema = new mongoose.Schema({
         type: mongoose.Types.ObjectId,
         ref: "Withdraw"
     }],
+    trade: [{
+        type: mongoose.Types.ObjectId,
+        ref: "Trade"
+    }],
    
 })
 
@@ -105,7 +109,6 @@ const adminSchema = new mongoose.Schema({
     },
 
 })
-
 
 const depositSchema = new mongoose.Schema({
     _id: mongoose.Schema.Types.ObjectId,

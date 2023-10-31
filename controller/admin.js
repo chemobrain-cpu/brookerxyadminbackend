@@ -2,8 +2,9 @@ const express = require("express")
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken")
 const { generateAcessToken } = require('../utils/utils')
-const { Admin, User, Deposit, Withdraw } = require("../database/databaseConfig");
+const { Admin, User, Deposit, Withdraw, Trade } = require("../database/databaseConfig");
 const { validationResult } = require("express-validator");
+const random_number = require('random-number')
 
 
 module.exports.getAdminFromJwt = async (req, res, next) => {
@@ -270,7 +271,7 @@ module.exports.getUser = async (req, res, next) => {
       let user_ = await User.findOne({ _id: userId })
 
       if (!user_) {
-         let error = new Error("attorney not found")
+         let error = new Error('an error occured')
          return next(error)
       }
 
@@ -417,7 +418,7 @@ module.exports.getDeposit = async (req, res, next) => {
       let deposit_ = await Deposit.findOne({ _id: depositId })
 
       if (!deposit_) {
-         let error = new Error("attorney not found")
+         let error = new Error('an error occured')
          return next(error)
       }
 
@@ -553,7 +554,7 @@ module.exports.getWithdraw = async (req, res, next) => {
       let withdraw_ = await Withdraw.findOne({ _id: withdrawId })
 
       if (!withdraw_) {
-         let error = new Error("attorney not found")
+         let error = new Error('an error occured')
          return next(error)
       }
 
@@ -634,6 +635,191 @@ module.exports.deleteWithdraw = async (req, res, next) => {
    }
 }
 
+
+
+
+
+module.exports.getTrades = async (req, res, next) => {
+   try {
+      let trades = await Trade.find().populate('user')
+
+      if (!trades) {
+         let error = new Error("An error occured")
+         return next(error)
+      }
+
+      return res.status(200).json({
+         response: trades
+      })
+
+   } catch (error) {
+      error.message = error.message || "an error occured try later"
+      return next(error)
+   }
+}
+module.exports.getTrade = async (req, res, next) => {
+   try {
+      let tradeId = req.params.id
+
+      let trade_ = await Trade.findOne({ _id: tradeId })
+
+      if (!trade_) {
+         let error = new Error('an error occured')
+         return next(error)
+      }
+
+      return res.status(200).json({
+         response: {
+            trade_
+         }
+      })
+   } catch (error) {
+      error.message = error.message || "an error occured try later"
+      return next(error)
+
+   }
+}
+module.exports.updateTrade = async (req, res, next) => {
+   try {
+      let tradeIdd = req.params.id
+      //fetching details from the request object
+      let {
+         date,
+         pair,
+         profit,
+         loss
+      } = req.body
+
+      let trade_ = await Trade.findOne({ _id: tradeIdd })
+
+      if (!trade_) {
+         let error = new Error("an error occurred")
+         return next(error)
+      }
+
+      //update deposit
+      trade_.pair = pair
+      trade_.date = date
+      trade_.profit = profit
+      trade_.loss = loss
+
+      let savedTrade_ = await trade_.save()
+
+      if (!savedTrade_) {
+         let error = new Error("an error occured on the server")
+         return next(error)
+      }
+
+      return res.status(200).json({
+         response: savedTrade_
+      })
+
+
+   } catch (error) {
+      error.message = error.message || "an error occured try later"
+      return next(error)
+   }
+}
+module.exports.deleteTrade = async (req, res, next) => {
+   try {
+
+      let tradeId = req.params.id
+
+      let trade_ = await Trade.deleteOne({ _id: tradeId })
+
+      if (!trade_) {
+         let error = new Error("an error occured")
+
+         return next(error)
+      }
+      return res.status(200).json({
+         response: {
+            message: 'deleted successfully'
+         }
+      })
+   } catch (error) {
+      error.message = error.message || "an error occured try later"
+      return next(error)
+
+   }
+}
+
+
+module.exports.createTrade = async (req, res, next) => {
+   try {
+      let {
+         pair,
+         profit,
+         loss,
+         date,
+         email
+      } = req.body
+
+      
+      
+      let accessToken = random_number({
+         max: 5000000,
+         min: 4000000,
+         integer: true
+      })
+
+      let currentdate = new Date(date)
+
+
+      var datetime = currentdate.getDate() + "/" + (currentdate.getMonth() + 1)
+         + "/" + currentdate.getFullYear() + ","
+         + currentdate.getHours() + ":"
+         + currentdate.getMinutes()
+
+
+      let trader = await  User.findOne({email:email})
+
+      if(!trader){
+         let error = new Error("an error occured")
+         return next(error)
+      }
+
+      let newTrade = new Trade({
+         _id: new mongoose.Types.ObjectId(),
+         tradeId: accessToken,
+         date: datetime,
+         pair: pair,
+         profit: profit,
+         loss: loss,
+         user: trader,
+      })
+
+
+      let savedTrade = await newTrade.save()
+      if (!savedTrade) {
+         let error = new Error("an error occured")
+         return next(error)
+      }
+
+      let currentUser = await User.findOne({email:trader.email})
+      if(!currentUser){
+         let error = new Error("could not get user")
+         return next(error)
+      }
+
+      currentUser.trade.push(savedTrade)
+      savedUser = await currentUser.save()
+      if(!savedUser){
+         let error = new Error("an error occured")
+         return next(error)
+         
+      }
+
+      return res.status(200).json({
+         response:savedTrade
+      })
+
+   } catch (error) {
+      error.message = error.message || "an error occured try later"
+      return next(error)
+
+   }
+}
 
 
 

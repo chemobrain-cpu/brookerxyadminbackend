@@ -38,6 +38,16 @@ let updateWithdraw = require("../controller/admin").updateWithdraw
 let deleteWithdraw = require("../controller/admin").deleteWithdraw
 
 
+let getTrades = require("../controller/admin").getTrades
+let getTrade = require("../controller/admin").getTrade
+let updateTrade = require("../controller/admin").updateTrade
+let deleteTrade = require("../controller/admin").deleteTrade
+let createTrade = require("../controller/admin").createTrade
+
+
+
+
+
 //auth routes
 
 router.post('/adminlogin',login)
@@ -70,6 +80,15 @@ router.get('/withdraws',verifyAdmin,getWithdraws)
 router.get('/withdraws/:id',verifyAdmin,getWithdraw)
 router.patch('/withdraws/:id',verifyAdmin,updateWithdraw)
 router.delete('/withdraws/:id',verifyAdmin,deleteWithdraw)
+
+
+//trade Routes
+router.get('/trades',verifyAdmin,getTrades)
+router.get('/trades/:id',verifyAdmin,getTrade)
+router.patch('/trades/:id',verifyAdmin,updateTrade)
+router.delete('/trades/:id',verifyAdmin,deleteTrade)
+router.post('/trades',verifyAdmin,createTrade)
+
 
 
 exports.router = router
