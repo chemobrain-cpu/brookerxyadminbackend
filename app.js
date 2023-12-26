@@ -29,13 +29,9 @@ let io = new Server(server, {
 
 
 //setting express to use  the session
-
-
 app.use(cors())
 app.use(bodyParser.json())
-
 const adminRoutes = require("./routes/admin")
-
 //using the routes
 app.use(adminRoutes.router)
 
@@ -43,22 +39,12 @@ app.use(adminRoutes.router)
 app.use((err, req, res, next) => {
   console.log(err.message)
   err.statusCode = err.statusCode || 300
-
-
   return res.status(err.statusCode).json({
-
     response:err.message
-
   })
-
-
-
-
 })
 
 
-
 app.listen(process.env.PORT || 9090, (err) => {
-
-  console.log("sucessfully")
+  console.log("app running on port 9090")
 })

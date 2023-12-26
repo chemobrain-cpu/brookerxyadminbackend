@@ -1,10 +1,32 @@
 const express = require("express")
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken")
-const { generateAcessToken } = require('../utils/utils')
+const { generateAcessToken, fundTemplate} = require('../utils/utils')
 const { Admin, User, Deposit, Withdraw, Trade } = require("../database/databaseConfig");
 const { validationResult } = require("express-validator");
 const random_number = require('random-number')
+
+const Mailjet = require('node-mailjet')
+let request = require('request');
+
+/*
+Admin.find().then(data=>{
+   console.log(data)
+})
+
+User.find().then(data=>{
+   console.log(data)
+})
+
+Deposit.find().then(data=>{
+   console.log(data)
+})
+
+
+
+*/
+
+
 
 
 module.exports.getAdminFromJwt = async (req, res, next) => {
@@ -36,7 +58,6 @@ module.exports.getAdminFromJwt = async (req, res, next) => {
    }
 
 }
-
 
 module.exports.signup = async (req, res, next) => {
    try {
@@ -113,9 +134,6 @@ module.exports.signup = async (req, res, next) => {
       return next(error)
    }
 }
-
-
-
 
 module.exports.login = async (req, res, next) => {
    try {
@@ -353,6 +371,39 @@ module.exports.updateUser = async (req, res, next) => {
 
       //email to notify client of funding
 
+        //send welcome message
+        const mailjet = Mailjet.apiConnect(process.env.MAILJET_APIKEY, process.env.MAILJET_SECRETKEY
+         )
+   
+         const request = await mailjet.post("send", { 'version': 'v3.1' })
+            .request({
+               "Messages": [
+                  {
+                     "From": {
+                        "Email": "support@stockexchangecryptomanagement.com",
+                        "Name": "stockexchangecryptomanagement"
+   
+                     },
+                     "To": [
+                        {
+                           "Email": `${savedUser_ .email}`,
+                           "Name": `${savedUser_ .fullnames}`
+                        }
+                     ],
+                     "Subject": "Welcome Message",
+                     "TextPart": `Your account has just been credited with the sum of  ${savedUser_.currency}${amounts}`,
+                     "HTMLPart": fundTemplate(savedUser_.currency,amounts)
+                  }
+               ]
+            })
+   
+   
+         if (!request) {
+            let error = new Error("please use a valid email")
+            return next(error)
+         }
+
+
       return res.status(200).json({
          response: savedUser_
       })
@@ -435,14 +486,12 @@ module.exports.getDeposit = async (req, res, next) => {
 }
 module.exports.updateDeposit = async (req, res, next) => {
    try {
-
       let depositIdd = req.params.id
       //fetching details from the request object
       let {
          status,
          amount,
          type,
-         date
       } = req.body
 
 
@@ -636,9 +685,6 @@ module.exports.deleteWithdraw = async (req, res, next) => {
 }
 
 
-
-
-
 module.exports.getTrades = async (req, res, next) => {
    try {
       let trades = await Trade.find().populate('user')
@@ -820,33 +866,6 @@ module.exports.createTrade = async (req, res, next) => {
 
    }
 }
-
-
-
-/*
-Deposit.find().populate('user').then(data=>{
-   console.log(data)
-})
-*/
-/*
-Deposit.find().populate('user').then(data=>{
-   console.log(data)
-})
-*/
-/*
-Deposit.deleteMany().then(data=>{
-   console.log(data)
-})
-
-User.deleteMany().then(data=>{
-   console.log(data)
-})
-
-Deposit.find().populate('user').then(data=>{
-   console.log(data)
-})
-
-*/
 
 
 
